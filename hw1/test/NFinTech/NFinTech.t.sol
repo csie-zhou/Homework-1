@@ -14,9 +14,21 @@ contract NFinTechTest is Test {
     address internal Alice;
     address internal user;
 
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed tokenId
+    );
+    event Approval(
+        address indexed owner,
+        address indexed approved,
+        uint256 indexed tokenId
+    );
+    event ApprovalForAll(
+        address indexed owner,
+        address indexed operator,
+        bool approved
+    );
 
     function setUp() public {
         nft = new NFinTech("NFinTech", "NFT");
@@ -356,13 +368,23 @@ contract NFinTechTest is Test {
 }
 
 contract MockSuccessReceiver is IERC721TokenReceiver {
-    function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external returns (bytes4) {
         return IERC721TokenReceiver.onERC721Received.selector;
     }
 }
 
 contract MockBadReceiver is IERC721TokenReceiver {
-    function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external returns (bytes4) {
         return bytes4(keccak256("approve(address,uint256)"));
     }
 }

@@ -5,18 +5,33 @@ interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
     function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool);
     function approve(address spender, uint256 amount) external returns (bool);
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(
+        address owner,
+        address spender
+    ) external view returns (uint256);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
 contract LiaoToken is IERC20 {
     // TODO: you might need to declare several state variable here
     mapping(address account => uint256) private _balances;
     mapping(address account => bool) isClaim;
+    /// A track of the allowance granted by token owner to spender
+    /// Outer mapping use token owner's address as key
+    /// Inner mapping use spender's address as key
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -60,17 +75,45 @@ contract LiaoToken is IERC20 {
 
     function transfer(address to, uint256 amount) external returns (bool) {
         // TODO: please add your implementaiton here
+        require(_balances[msg.sender] >= amount, "Insufficient balance"); /// Check 'smg.sender' has sufficient balance to send
+        _balances[msg.sender] -= amount;
+        _balances[to] += amount;
+        emit Transfer(msg.sender, to, amount); /// Emits 'Transfer' event
+        return true;
     }
 
-    function transferFrom(address from, address to, uint256 value) external returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool) {
         // TODO: please add your implementaiton here
+        require(_balances[from] >= value, "Insufficient balance");
+        require(
+            _allowances[from][msg.sender] >= value,
+            "Insufficient allowance"
+        );
+
+        _balances[from] -= value;
+        _balances[to] += value;
+        _allowances[from][msg.sender] -= value;
+
+        emit Transfer(from, to, value);
+        return true;
     }
 
     function approve(address spender, uint256 amount) external returns (bool) {
-        // TODO: please add your implementaiton here
+        // TODO: please add your implementation here
+        _allowances[msg.sender][spender] = amount; /// Sets allowance for 'spender address' to the 'amount' by token owner 'msg.sender'
+        emit Approval(msg.sender, spender, amount); /// Emits the 'Approval' event
+        return true; /// return true if 'approve' operation is success
     }
 
-    function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(
+        address owner,
+        address spender
+    ) public view returns (uint256) {
         // TODO: please add your implementaiton here
+        return _allowances[owner][spender];
     }
 }
